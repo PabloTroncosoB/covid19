@@ -4,7 +4,193 @@
 	<meta charset="utf-8">
 	<title>Casos actuales covid19 por región</title>
 </head>
-<body>
-	<h3>Casos actuales covid19 por región - en desarrollo</h3>
-	<div id ="container" ></div>
+<body style="font-size: 1.2em">
+	<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+	<script src="https://code.highcharts.com/highcharts.js"></script>
+	<script src="https://code.highcharts.com/modules/series-label.js"></script>
+	<script src="https://code.highcharts.com/modules/exporting.js"></script>
+	<script src="https://code.highcharts.com/modules/export-data.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$.ajax({
+				type: "GET",
+				url: "https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto3/CasosTotalesCumulativo.csv",
+				dataType: "text",
+				success: function(data) {boom(data);}
+				});
+			});
+
+		function boom(allText) {
+			var nDias=17;
+			var allTextLines = allText.split(/\r\n|\n/);
+			var headers = allTextLines[0].split(',');
+			var categorias = [];
+			var dataPlot= [];
+			var regiones= [];
+			var fecha="";
+			var fechasplit=[];
+
+			for (var i=1; i<allTextLines.length; i++) {
+				var datafor = allTextLines[i].split(',');
+				if (datafor.length == headers.length) {
+					dataPlot[i-1]={};
+					dataPlot[i-1]["name"]="";
+					dataPlot[i-1]["data"]=[];
+					for (var j=0; j<headers.length; j++) {
+						if(j===0){
+							dataPlot[i-1]["name"]=datafor[j];
+							regiones.push(datafor[j]);
+						}else{
+							if(i==1){
+								fechasplit=headers[j].split("-");
+								fecha=fechasplit[2]+"/"+fechasplit[1]+"/"+fechasplit[0];
+								categorias.push(fecha);
+							}
+							if(j>nDias){
+									dataPlot[i-1]["data"].push(parseInt(datafor[j])-parseInt(datafor[j-nDias]));
+							}else{
+								dataPlot[i-1]["data"].push(parseInt(datafor[j]));
+							}
+						}
+					}
+					
+				}
+			}
+			console.log(regiones);
+			console.log(dataPlot);
+
+			var selectRegiones="<option value=99>Todas</option>";
+			for (var i = 0; i < regiones.length; i++) {
+				selectRegiones=selectRegiones+"<option value="+i+">"+regiones[i]+"</option>";
+			}
+			$("#sRegiones").html(selectRegiones);
+
+			$("#sRegiones2").on('change', function() {
+				while(graf.series.length > 0)
+    				graf.series[0].remove(false);
+    			if(this.value ==99){
+    				for (var i = 0; i < dataPlot.length; i++) {
+    					graf.addSeries(dataPlot[i],false);
+    				}
+    			}else{
+					graf.addSeries(dataPlot[this.value],false);
+				}
+				graf.redraw();
+			});
+			$("#sRegiones").on('change', function() {
+				for (var index = 0; index < graf.series.length; index++) {
+					if(this.value==99){
+						graf.series[index].setVisible(true,false);
+					}else{
+						if(index==this.value){
+							graf.series[index].setVisible(true,false);
+						}else{
+							graf.series[index].setVisible(false,false);
+						}
+					}
+				}
+				graf.redraw();
+			});
+			
+			Highcharts.setOptions({
+				lang: {
+					resetZoom: "Quitar Zoom",
+					downloadCSV:"Exportar en CSV",       
+        			viewFullscreen:"Pantalla completa",
+        			downloadPNG:"Descarga Imágen PNG",
+        			printChart:"Imprimir",
+        			exitFullscreen:"Salir de pantalla completa",
+        			downloadXLS:"Bajar en XLS",
+        			downloadSVG:"Transformar a SVG",
+        			downloadPDF:"Bajar en PDF",
+        			downloadJPEG:"Descarga Imágen JPEG",
+        			viewData:"ver en tabla",
+        			contextButtonTitle:"menú",
+        			exportData:{
+						categoryHeader:"Fecha / Región"
+					}
+				}
+			});
+
+			var graf = Highcharts.chart('container', {
+				credits: {
+        			text: 'https://pablotroncosob.github.io/covid19'
+        		},
+				chart: {
+					type: 'line',
+					zoomType: 'x'
+				},
+
+				title: {
+					text: 'Casos actuales covid19 por región - en desarrollo'
+				},
+
+				subtitle: {
+					text: 'Fuente: https://github.com/MinCiencia/Datos-COVID19/blob/master/output/producto3/CasosTotalesCumulativo.csv'
+				},
+
+				yAxis: {
+					title: {
+						text: 'Numero de contagiados activos'
+					}
+				},
+
+				xAxis: {
+					categories: categorias
+				},
+
+				legend: {
+					layout: 'vertical',
+					align: 'right',
+					verticalAlign: 'bottom'
+				},
+
+				plotOptions: {
+					series: {
+						label: {
+							connectorAllowed: false
+						}
+					}
+				},
+
+				series: dataPlot,
+
+				responsive: {
+					rules: [{
+						condition: {
+							maxWidth: 500
+						},
+						chartOptions: {
+							legend: {
+								layout: 'horizontal',
+								align: 'center',
+								verticalAlign: 'bottom'
+							}
+						}
+					}]
+				}
+			});
+			
+		}
+	</script>
+	<div style="margin:2em 10vw">
+		<h3>Numero estimado de contagiados activos por región en Chile</h3>
+		<p><b>Metodología</b>: 
+			Se utilizan los datos incrementales de la cantidad de casos totales día a día por región.<br/>
+			Se asumen cómo recuperados todos los casos con mas de 18 días de antiguedad, Por cada iteración de fecha y si existen casos con 18 días anteriores a esa fecha, se restan los casos actuales con los antiguos que corresponden a esa fecha menos 18 días y se obtiene un estimado de casos activos.<br/><br/>Se utilizan: Los datos publicos del Ministerio de ciencia (<a href="https://github.com/MinCiencia/Datos-COVID19/blob/master/output/producto3/CasosTotalesCumulativo.csv" target="_blank" rel="noopener noreferrer">enlace</a>),
+				<a href="https://www.highcharts.com/" target="_blank" rel="noopener noreferrer">Highcharts</a>,
+				<a href="https://jquery.com/" target="_blank" rel="noopener noreferrer">jQuery</a>,
+				<a href="https://www.javascript.com/" target="_blank" rel="noopener noreferrer">JavaScript</a>.<br/><br/>
+
+		La creación de este gráfico nace como la necesidad de conocer este dato, no es un dato oficial y es solamente un estimado.</p>
+
+<label for="sRegiones">Seleccione una región:</label>
+
+<select id="sRegiones" style="font-size: 0.9em;">
+  <option value="99">Todas</option>
+</select> <span style="margin:2em;font-size: 1em;">pd: También se pueden seleccionar/quitar haciendo click en el gráfico en la lista de la derecha.</span>
+</div>
+<div id ="container" style="border:0px;margin:2em;height: 60vh;"></div>
+
 </body>
+</html>
