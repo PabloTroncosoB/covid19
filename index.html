@@ -2,15 +2,33 @@
 <html lang="es">
 <head>
 	<meta charset="utf-8">
-	<title>Casos actuales covid19 por región</title>
+	<title>Casos activos covid19 por región</title>
 </head>
-<body style="font-size: 1.2em">
+<body style="font-size: 1.1em">
 	<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 	<script src="https://code.highcharts.com/highcharts.js"></script>
 	<script src="https://code.highcharts.com/modules/series-label.js"></script>
 	<script src="https://code.highcharts.com/modules/exporting.js"></script>
 	<script src="https://code.highcharts.com/modules/export-data.js"></script>
+	<style type="text/css">
+		/* For desktop: */
+		#todo{
+			margin:2em 20vw;
+		}
+		@media only screen and (max-width: 1300px) {
+			#todo{
+				margin:2em 10vw;
+			}
+		}
+		@media only screen and (max-width: 900px) {
+			#todo{
+				margin:2em 1vw;
+			}
+		}
+
+	</style>
 	<script type="text/javascript">
+
 		$(document).ready(function() {
 			$.ajax({
 				type: "GET",
@@ -21,7 +39,7 @@
 			});
 
 		function boom(allText) {
-			var nDias=17;
+			var nDias=18;
 			var allTextLines = allText.split(/\r\n|\n/);
 			var headers = allTextLines[0].split(',');
 			var categorias = [];
@@ -150,6 +168,12 @@
 						label: {
 							connectorAllowed: false
 						}
+					},
+					line: {
+						dataLabels: {
+							enabled: false
+					},
+					enableMouseTracking: false
 					}
 				},
 
@@ -173,7 +197,7 @@
 			
 		}
 	</script>
-	<div style="margin:2em 10vw">
+	<div id="todo">
 		<h3>Numero estimado de contagiados activos por región en Chile</h3>
 		<p><b>Metodología</b>: 
 			Se utilizan los datos incrementales de la cantidad de casos totales día a día por región.<br/>
@@ -188,9 +212,10 @@
 
 <select id="sRegiones" style="font-size: 0.9em;">
   <option value="99">Todas</option>
-</select> <span style="margin:2em;font-size: 1em;">pd: También se pueden seleccionar/quitar haciendo click en el gráfico en la lista de la derecha.</span>
+</select> <span style="margin:2em;font-size: 1em;">pd: También se pueden seleccionar/quitar haciendo click en el gráfico en la lista de la derecha.</span><br><br>
+<div id ="container" style="border:0px;min-height: 60vh"></div>
 </div>
-<div id ="container" style="border:0px;margin:2em;height: 60vh;"></div>
+
 
 </body>
 </html>
