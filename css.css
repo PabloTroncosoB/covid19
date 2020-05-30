@@ -1,0 +1,26 @@
+body{
+	font-size: 1.1em
+}
+
+#todo{
+	margin:2em 20vw;
+}
+@media only screen and (max-width: 1300px) {
+	#todo{
+		margin:2em 10vw;
+	}
+}
+@media only screen and (max-width: 900px) {
+	#todo{
+		margin:2em 1vw;
+	}
+}
+
+#sRegiones,#sComunas{
+	font-size: 0.9em;
+}
+
+.container{
+	border:0px;
+	min-height: 60vh
+}
