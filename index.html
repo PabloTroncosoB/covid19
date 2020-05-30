@@ -217,7 +217,11 @@
 									datafor[j]=datafor[j+1];//se corrige reportes falsos (caso de panguipulli fechas 13/04 y 20/04)
 								}
 								if(j>nDias && j-nDias > 5 ){//5 por que los datos empiezan en la 5ta fila
-									dataPlot[i-1]["data"].push(parseFloat(datafor[j])-parseFloat(datafor[j-nDias]));
+									if(parseFloat(datafor[j])-parseFloat(datafor[j-nDias])>=0){
+										dataPlot[i-1]["data"].push(parseFloat(datafor[j])-parseFloat(datafor[j-nDias]));
+									}else{
+										dataPlot[i-1]["data"].push(0);
+									}
 								}else{
 									dataPlot[i-1]["data"].push(parseFloat(datafor[j]));
 								}
@@ -331,12 +335,12 @@
 		<h3>Numero estimado de contagiados activos por región en Chile</h3>
 		<p><b>Metodología regiones</b>: 
 			Se utilizan los datos incrementales de la cantidad de casos totales día a día por región.<br/>
-			Se asumen cómo recuperados todos los casos con mas de 18 días de antiguedad. Por cada iteración de fecha se restan los casos actuales con los correspondientes a esa fecha <b>menos 18 días</b> y se obtiene un estimado de casos activos.<br/><br/><br/>
+			Se asumen cómo recuperados todos los casos con mas de 18 días de antiguedad. Por cada iteración de fecha se restan los casos actuales con los correspondientes a esa fecha <b>menos 18 días</b> y se obtiene un estimado de casos activos.<br/><br/>
 
-		<p><b>Metodología Comunas</b>: 
+		<b>Metodología Comunas</b>: 
 			Es la misma metodología que para regiones, el caso es que la información se actualiza cada 2 o 3 días, las actualizaciones toman en cuenta 7 periodos anteriores (dando un rango entre 14 y 21 días) para hacer la resta y obtener los casos activos, <a href="https://github.com/MinCiencia/Datos-COVID19/tree/master/output/producto1" target="_blank" rel="noopener noreferrer">obtener mas detalle.</a>
 			<br/><br/>
-			Se utilizan: Los datos publicos del Ministerio de ciencia (<a href="https://github.com/MinCiencia/Datos-COVID19/blob/master/output/producto3/CasosTotalesCumulativo.csv" target="_blank" rel="noopener noreferrer">regiones</a>,<a href="https://github.com/MinCiencia/Datos-COVID19/blob/master/output/producto1/Covid-19.csv" target="_blank" rel="noopener noreferrer">comunas</a>), 
+			<b>Se utilizan</b>: Los datos publicos del Ministerio de ciencia (<a href="https://github.com/MinCiencia/Datos-COVID19/blob/master/output/producto3/CasosTotalesCumulativo.csv" target="_blank" rel="noopener noreferrer">regiones</a>, <a href="https://github.com/MinCiencia/Datos-COVID19/blob/master/output/producto1/Covid-19.csv" target="_blank" rel="noopener noreferrer">comunas</a>), 
 			<a href="https://www.highcharts.com/" target="_blank" rel="noopener noreferrer">Highcharts</a>, 
 			<a href="https://jquery.com/" target="_blank" rel="noopener noreferrer">jQuery</a>, 
 			<a href="https://www.javascript.com/" target="_blank" rel="noopener noreferrer">JavaScript</a>.<br/><br/>
